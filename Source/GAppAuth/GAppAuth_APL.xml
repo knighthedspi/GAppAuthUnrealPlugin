@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root xmlns:android="http://schemas.android.com/apk/res/android">
+    <init>
+		<log text="GAppAuth Initialization"/>
+		<setStringFromProperty result="CLIENT_ID_PREFIX" ini="Engine" section="/Script/GAppAuth.GAppAuthSettings" property="ClientIdPrefix" default=""/>
+	</init>
+
+  <gradleProperties>
+    <insert>
+      android.useAndroidX=true
+      android.enableJetifier=true
+    </insert>
+  </gradleProperties>
+  
+    <buildscriptGradleAdditions>
+        <log text="GAppAuth Configure HMS Core SDK"/>
+        <insert>
+            repositories {
+                maven { url 'https://www.jitpack.io' }
+            }
+        </insert>
+    </buildscriptGradleAdditions>
+
+    <baseBuildGradleAdditions>
+        <log text="GAppAuth Configure HMS maven repository address"/>
+        <insert>
+            allprojects {
+                repositories {
+                    maven { url 'https://www.jitpack.io' }
+                }
+            }
+        </insert>     
+    </baseBuildGradleAdditions>
+
+    <buildGradleAdditions>
+        <log text="GAppAuth Configure dependencies with client id prefix: $S(CLIENT_ID_PREFIX)"/>
+        <insert>
+            dependencies {
+                implementation 'com.github.billtom20:GAppAuth:1.6'
+            }
+        </insert>
+        <insert>
+            android {
+                defaultConfig {
+                    manifestPlaceholders = [
+                        clientId_prefix: "CLIENT_ID_PREFIX"
+                    ]   
+                }
+            }
+        </insert>
+        <replace find="CLIENT_ID_PREFIX" with="$S(CLIENT_ID_PREFIX)"/>
+        <insert>
+            android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_1_8
+                    targetCompatibility JavaVersion.VERSION_1_8
+                }
+            }
+        </insert>
+    </buildGradleAdditions>
+
+    <prebuildCopies>
+        <log text="GAppAuth Configure external Java classes file"/>
+		<copyDir src="$S(PluginDir)/External" dst="$S(BuildDir)/src"/>
+    </prebuildCopies>
+
+    <gameActivityImportAdditions>
+        <log text="GAppAuth Import classes"/>
+        <insert>
+            <![CDATA[
+                import com.gappauth.GAppAuthListener;
+                import com.gappauth.GAppAuthPlugin;
+            ]]>
+        </insert>
+    </gameActivityImportAdditions>
+
+    <gameActivityClassAdditions>
+        <log text="GAppAuth Configure Java code"/>
+        <insert>
+            <![CDATA[
+                public void GAppAuth_Login() {
+                    GAppAuthPlugin.login();
+                }
+
+                public void GAppAuth_Logout() {
+                    GAppAuthPlugin.logout();
+                }
+
+                // Native C++ functions
+                public native void nativeOnLoginSuccess(String jsonResult);
+                public native void nativeOnLoginFailure(String message);
+                public native void nativeOnLogoutSuccess();
+                public native void nativeOnLogoutFailure(String message);
+            ]]>
+        </insert>
+    </gameActivityClassAdditions>
+
+    <gameActivityOnCreateAdditions>
+        <log text="GAppAuth Configure initialize code"/>
+        <insert>
+            <![CDATA[
+                GAppAuthPlugin.init(this, new GAppAuthListener() {
+                    @Override
+                    public void onLoginSuccess(String jsonResult) {
+                        nativeOnLoginSuccess(jsonResult);
+                    }
+
+                    @Override
+                    public void onLoginFailure(String message) {
+                        nativeOnLoginFailure(message);
+                    }
+
+                    @Override
+                    public void onLogoutSuccess() {
+                        nativeOnLogoutSuccess();
+                    }
+
+                    @Override
+                    public void onLogoutFailure(String message) {
+                        nativeOnLogoutFailure(message);
+                    }
+                });
+            ]]>
+        </insert>
+    </gameActivityOnCreateAdditions>
+
+    <gameActivityOnActivityResultAdditions>
+        <log text="GAppAuth Configure OnActivityResult"/>
+        <insert>
+            <![CDATA[
+                GAppAuthPlugin.registerOnActivityResult(requestCode, resultCode, data);
+            ]]>
+        </insert>
+    </gameActivityOnActivityResultAdditions>   
+</root>
