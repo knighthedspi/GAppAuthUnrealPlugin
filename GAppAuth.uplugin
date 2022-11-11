@@ -1,0 +1,21 @@
+{
+  "FileVersion": 3,
+  "Version": 1,
+  "VersionName": "1.0",
+  "FriendlyName": "GAppAuth",
+  "Description": "Google's OAuth 2.0 Plugin for Unreal Game Engine",
+  "Category": "Service",
+  "CreatedBy": "Huawei Japan DTSE",
+  "CreatedByURL": "",
+  "DocsURL": "",
+  "MarketplaceURL": "",
+  "EnabledByDefault": true,
+  "SupportURL": "",
+  "Modules": [
+    {
+      "Name": "GAppAuth",
+      "Type": "Runtime",
+      "LoadingPhase": "PreLoadingScreen"
+    }
+  ]
+}
